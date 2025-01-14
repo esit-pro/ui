@@ -10,7 +10,7 @@ import { TasksPrimaryButtons } from './components/tasks-primary-buttons'
 import TasksProvider from './context/tasks-context'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
-import { IconLoader2 } from '@tabler/icons-react'
+import { TableSkeleton } from '@/components/ui/skeleton-patterns'
 import { useToast } from '@/hooks/use-toast'
 
 export default function Tasks() {
@@ -61,9 +61,7 @@ export default function Tasks() {
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
           {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <IconLoader2 className="h-8 w-8 animate-spin" />
-            </div>
+            <TableSkeleton rows={10} />
           ) : tasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
               <p className="text-muted-foreground">No tasks found</p>

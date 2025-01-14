@@ -1,4 +1,6 @@
 import { Button } from '@/components/ui/button'
+import { DashboardSkeleton } from '@/components/ui/skeleton-patterns'
+import { useState, useEffect } from 'react'
 import {
   Card,
   CardContent,
@@ -17,6 +19,16 @@ import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
 
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
     <>
       {/* ===== Top Heading ===== */}
@@ -57,7 +69,11 @@ export default function Dashboard() {
             </TabsList>
           </div>
           <TabsContent value='overview' className='space-y-4'>
-            <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+            {loading ? (
+              <DashboardSkeleton />
+            ) : (
+              <>
+                <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
               <Card>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                   <CardTitle className='text-sm font-medium'>
@@ -180,7 +196,9 @@ export default function Dashboard() {
                   <RecentSales />
                 </CardContent>
               </Card>
-            </div>
+                </div>
+              </>
+            )}
           </TabsContent>
         </Tabs>
       </Main>
