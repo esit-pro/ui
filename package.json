@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
-    "knip": "knip"
+    "knip": "knip",
+    "backend": "cd ../backend && pnpm dev",
+    "kill-orphans": "pkill -f 'node server.js'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
