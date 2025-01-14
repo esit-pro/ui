@@ -1,4 +1,6 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { useEffect, useState, useCallback } from 'react'
+import { useToast } from '@/hooks/use-toast'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,6 +15,32 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 export function ProfileDropdown() {
+  const navigate = useNavigate()
+  const [userPhone, setUserPhone] = useState<string>('')
+  const { toast } = useToast()
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('authToken')
+    navigate({ to: '/sign-in' })
+  }, [navigate])
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        setUserPhone(payload.phone)
+      } catch {
+        toast({
+          title: "Error",
+          description: "Invalid authentication token",
+          variant: "destructive",
+        })
+        handleLogout()
+      }
+    }
+  }, [toast, handleLogout])
+
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
@@ -26,9 +54,9 @@ export function ProfileDropdown() {
       <DropdownMenuContent className='w-56' align='end' forceMount>
         <DropdownMenuLabel className='font-normal'>
           <div className='flex flex-col space-y-1'>
-            <p className='text-sm font-medium leading-none'>satnaing</p>
+            <p className='text-sm font-medium leading-none'>User</p>
             <p className='text-xs leading-none text-muted-foreground'>
-              satnaingdev@gmail.com
+              {userPhone || 'Not logged in'}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -55,7 +83,7 @@ export function ProfileDropdown() {
           <DropdownMenuItem>New Team</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>

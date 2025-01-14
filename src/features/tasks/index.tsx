@@ -10,8 +10,10 @@ import { TasksPrimaryButtons } from './components/tasks-primary-buttons'
 import TasksProvider from './context/tasks-context'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
-import { TableSkeleton } from '@/components/ui/skeleton-patterns'
+import { TasksTableSkeleton } from './components/tasks-table-skeleton'
 import { useToast } from '@/hooks/use-toast'
+import { handleFetchError } from '../../utils/handle-fetch-error'
+import apiClient from '../../lib/api-client'
 
 export default function Tasks() {
   const [tasks, setTasks] = useState([])
@@ -20,14 +22,13 @@ export default function Tasks() {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/tasks')
-      if (!response.ok) throw new Error('Failed to fetch tasks')
-      const data = await response.json()
-      setTasks(data)
+      const response = await apiClient.get('/api/tasks')
+      setTasks(response.data)
     } catch (error) {
+      const errorMessage = handleFetchError(error, 'Tasks List')
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to fetch tasks",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -61,7 +62,7 @@ export default function Tasks() {
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
           {loading ? (
-            <TableSkeleton rows={10} />
+            <TasksTableSkeleton />
           ) : tasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
               <p className="text-muted-foreground">No tasks found</p>

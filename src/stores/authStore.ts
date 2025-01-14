@@ -1,12 +1,9 @@
-import Cookies from 'js-cookie'
 import { create } from 'zustand'
 
-const ACCESS_TOKEN = 'thisisjustarandomstring'
+const AUTH_TOKEN = 'authToken'
 
 interface AuthUser {
-  accountNo: string
-  email: string
-  role: string[]
+  phone: string
   exp: number
 }
 
@@ -22,8 +19,16 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()((set) => {
-  const cookieState = Cookies.get(ACCESS_TOKEN)
-  const initToken = cookieState ? JSON.parse(cookieState) : ''
+  // Initialize with dev token in development
+  const devToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IisxMjM0NTY3ODkwIiwiaWF0IjoxNzA1MjM5MDIyfQ.KkUc8mJFp9eSXMhwBtJhGGqZJGkY-mAYxqoFPXHrXkE';
+  const storedToken = import.meta.env.DEV ? devToken : localStorage.getItem(AUTH_TOKEN);
+  const initToken = storedToken || '';
+  
+  // Save dev token to localStorage in development
+  if (import.meta.env.DEV && !localStorage.getItem(AUTH_TOKEN)) {
+    localStorage.setItem(AUTH_TOKEN, devToken);
+  }
+
   return {
     auth: {
       user: null,
@@ -32,17 +37,17 @@ export const useAuthStore = create<AuthState>()((set) => {
       accessToken: initToken,
       setAccessToken: (accessToken) =>
         set((state) => {
-          Cookies.set(ACCESS_TOKEN, JSON.stringify(accessToken))
+          localStorage.setItem(AUTH_TOKEN, accessToken)
           return { ...state, auth: { ...state.auth, accessToken } }
         }),
       resetAccessToken: () =>
         set((state) => {
-          Cookies.remove(ACCESS_TOKEN)
+          localStorage.removeItem(AUTH_TOKEN)
           return { ...state, auth: { ...state.auth, accessToken: '' } }
         }),
       reset: () =>
         set((state) => {
-          Cookies.remove(ACCESS_TOKEN)
+          localStorage.removeItem(AUTH_TOKEN)
           return {
             ...state,
             auth: { ...state.auth, user: null, accessToken: '' },
@@ -52,4 +57,4 @@ export const useAuthStore = create<AuthState>()((set) => {
   }
 })
 
-// export const useAuth = () => useAuthStore((state) => state.auth)
+export const useAuth = () => useAuthStore((state) => state.auth)
