@@ -8,9 +8,37 @@ import { DataTable } from './components/data-table'
 import { TasksDialogs } from './components/tasks-dialogs'
 import { TasksPrimaryButtons } from './components/tasks-primary-buttons'
 import TasksProvider from './context/tasks-context'
-import { tasks } from './data/tasks'
+import { Button } from '@/components/ui/button'
+import { useEffect, useState } from 'react'
+import { IconLoader2 } from '@tabler/icons-react'
+import { useToast } from '@/hooks/use-toast'
 
 export default function Tasks() {
+  const [tasks, setTasks] = useState([])
+  const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
+
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/tasks')
+      if (!response.ok) throw new Error('Failed to fetch tasks')
+      const data = await response.json()
+      setTasks(data)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to fetch tasks",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchTasks()
+  }, [])
+
   return (
     <TasksProvider>
       <Header fixed>
@@ -32,7 +60,18 @@ export default function Tasks() {
           <TasksPrimaryButtons />
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
-          <DataTable data={tasks} columns={columns} />
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <IconLoader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <p className="text-muted-foreground">No tasks found</p>
+              <Button onClick={fetchTasks}>Refresh</Button>
+            </div>
+          ) : (
+            <DataTable data={tasks} columns={columns} />
+          )}
         </div>
       </Main>
 

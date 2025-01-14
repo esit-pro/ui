@@ -5,6 +5,7 @@ import {
   IconPalette,
   IconTool,
   IconUser,
+  IconDatabase,
 } from '@tabler/icons-react'
 import { Separator } from '@/components/ui/separator'
 import { Header } from '@/components/layout/header'
@@ -74,5 +75,10 @@ const sidebarNavItems = [
     title: 'Display',
     icon: <IconBrowserCheck size={18} />,
     href: '/settings/display',
+  },
+  {
+    title: 'Demo Data',
+    icon: <IconDatabase size={18} />,
+    href: '/settings/demo',
   },
 ]
